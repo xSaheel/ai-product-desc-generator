@@ -219,7 +219,7 @@ export default function Dashboard() {
                   value={formData.productName}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 placeholder-gray-500"
                   placeholder="e.g., Wireless Bluetooth Headphones"
                 />
               </div>
@@ -237,7 +237,7 @@ export default function Dashboard() {
                   name="productType"
                   value={formData.productType}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 placeholder-gray-500"
                   placeholder="e.g., Electronics, Clothing, Home & Garden"
                 />
               </div>
@@ -255,7 +255,7 @@ export default function Dashboard() {
                   name="targetAudience"
                   value={formData.targetAudience}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 placeholder-gray-500"
                   placeholder="e.g., Music enthusiasts, Professionals"
                 />
               </div>
@@ -272,7 +272,7 @@ export default function Dashboard() {
                   name="tone"
                   value={formData.tone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900"
                 >
                   {toneOptions.map((tone) => (
                     <option key={tone} value={tone}>
@@ -296,7 +296,7 @@ export default function Dashboard() {
                 value={formData.features}
                 onChange={handleInputChange}
                 rows={4}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white resize-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 placeholder-gray-500 resize-none"
                 placeholder="e.g., Noise cancellation, 30-hour battery life, premium sound quality, wireless connectivity, built-in microphone"
               />
             </div>
@@ -443,11 +443,26 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {new Date(desc.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                        {(() => {
+                          try {
+                            const date = new Date(desc.createdAt);
+                            if (isNaN(date.getTime())) {
+                              return "Invalid Date";
+                            }
+                            return date.toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            });
+                          } catch (error) {
+                            console.error(
+                              "Date parsing error:",
+                              error,
+                              desc.createdAt
+                            );
+                            return "Invalid Date";
+                          }
+                        })()}
                       </span>
                     </div>
                   </div>
