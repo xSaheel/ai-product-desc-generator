@@ -8,8 +8,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-quicksand);
-  --font-family-sans: var(--font-quicksand);
+  --font-sans: var(--font-outfit);
+  --font-family-sans: var(--font-outfit);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +22,32 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-quicksand), Arial, Helvetica, sans-serif;
+  font-family: var(--font-outfit), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  body {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Ensure proper touch targets on mobile */
+button,
+a,
+input,
+select,
+textarea {
+  min-height: 44px; /* iOS recommended minimum touch target */
+}
+
+/* Improve form element spacing on mobile */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
 }

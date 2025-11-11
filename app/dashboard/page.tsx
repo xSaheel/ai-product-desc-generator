@@ -141,13 +141,13 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                Product Description Generator
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Deskriptr
               </h1>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-1 sm:mt-2 text-gray-600 text-sm sm:text-base">
                 Generate compelling product descriptions using AI
               </p>
             </div>
@@ -173,11 +173,11 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Generation Form */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
-          <div className="flex items-center mb-6">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center mb-6">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-0 sm:mr-4 mb-4 sm:mb-0 mx-auto sm:mx-0">
               <svg
                 className="w-5 h-5 text-white"
                 fill="none"
@@ -192,11 +192,11 @@ export default function Dashboard() {
                 />
               </svg>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="text-center sm:text-left">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Generate New Description
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm sm:text-base">
                 Fill in the details below to create a compelling product
                 description
               </p>
@@ -204,7 +204,7 @@ export default function Dashboard() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-2">
                 <label
                   htmlFor="productName"
@@ -325,7 +325,7 @@ export default function Dashboard() {
             <button
               type="submit"
               disabled={isGenerating || !formData.productName}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 sm:py-4 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
             >
               {isGenerating ? (
                 <div className="flex items-center justify-center">
@@ -355,9 +355,9 @@ export default function Dashboard() {
         </div>
 
         {/* Generated Descriptions List */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-          <div className="flex items-center mb-6">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center mb-6">
+            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-0 sm:mr-4 mb-4 sm:mb-0 mx-auto sm:mx-0">
               <svg
                 className="w-5 h-5 text-white"
                 fill="none"
@@ -372,11 +372,11 @@ export default function Dashboard() {
                 />
               </svg>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="text-center sm:text-left">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Generated Descriptions
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm sm:text-base">
                 Your previously generated product descriptions
               </p>
             </div>
@@ -418,9 +418,9 @@ export default function Dashboard() {
               {descriptions.map((desc) => (
                 <div
                   key={desc.id}
-                  className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-200 hover:border-gray-300"
+                  className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-all duration-200 hover:border-gray-300"
                 >
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-3 sm:gap-0">
                     <div className="flex items-center">
                       <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
                         <svg
@@ -437,7 +437,7 @@ export default function Dashboard() {
                           />
                         </svg>
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900">
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                         {desc.productName}
                       </h3>
                     </div>
@@ -467,7 +467,7 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
                     {desc.productType && (
                       <div className="bg-white rounded-lg p-3 border border-gray-100">
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
@@ -527,7 +527,7 @@ export default function Dashboard() {
                           />
                         </svg>
                       </div>
-                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm sm:text-base">
                         {desc.description}
                       </p>
                     </div>
