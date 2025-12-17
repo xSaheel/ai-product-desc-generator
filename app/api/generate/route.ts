@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { getOrCreateUser } from '@/lib/user';
-import { hf } from '@/lib/huggingface';
+import { queryFlanT5Base, queryFalcon7B } from '@/lib/huggingface';
 
 // Function to create enhanced description from AI-generated base text
 function createEnhancedDescription(
@@ -239,66 +239,41 @@ export async function POST(req: NextRequest) {
 
     console.log('Generating AI description for:', productName);
 
-    // Try multiple models with different approaches
-    const models = [
-      "microsoft/DialoGPT-large",
-      "gpt2-large", 
-      "facebook/blenderbot-400M-distill",
-      "microsoft/DialoGPT-medium",
-      "gpt2"
-    ];
+    // Create the instruction prompt
+    const instructionPrompt = `You are a professional e-commerce copywriter. Write a compelling product description for an e-commerce website.
+
+Product Name: ${productName}
+Category: ${productType || 'General product'}
+Target Audience: ${targetAudience || 'General consumers'}
+Key Features: ${features || 'High quality features'}
+Tone: ${tone || 'Professional and engaging'}
+
+Write 2-3 paragraphs (120-150 words) that:
+- Highlight the specific benefits and features mentioned
+- Use the specified tone throughout
+- Include a compelling call-to-action
+- Be specific to this product and avoid generic language
+- Make it sound professional and engaging
+
+Product Description:`;
 
     let finalDescription = null;
     let modelUsed = null;
 
-    // Try each model until we get a good result
-    for (const model of models) {
-      try {
-        console.log(`Trying model: ${model}`);
-        
-        // Create a simple, effective prompt based on the model
-        let simplePrompt = '';
-        if (model.includes('DialoGPT')) {
-          simplePrompt = `Human: Write a ${tone || 'professional'} product description for "${productName}". It's ${productType || 'a product'} for ${targetAudience || 'customers'}. Features: ${features || 'high quality'}.\nBot: `;
-        } else if (model.includes('blenderbot')) {
-          simplePrompt = `Describe this product professionally: ${productName} (${productType || 'product'}) with features: ${features || 'quality features'} for ${targetAudience || 'customers'}`;
-        } else {
-          simplePrompt = `Product: ${productName}\nCategory: ${productType || 'General'}\nFeatures: ${features || 'High quality'}\nFor: ${targetAudience || 'Everyone'}\nTone: ${tone || 'Professional'}\n\nDescription: `;
-        }
-
-        const response = await hf.textGeneration({
-          model: model,
-          inputs: simplePrompt,
-          parameters: {
-            max_new_tokens: model.includes('large') ? 100 : 80,
-            temperature: 0.8,
-            top_p: 0.9,
-            do_sample: true,
-            return_full_text: false,
-            repetition_penalty: 1.15,
-            pad_token_id: 50256,
-          },
-        });
-
-        let generatedText = response.generated_text?.trim();
-        
-        if (!generatedText || generatedText.length < 30) {
-          console.log(`Model ${model} generated insufficient content`);
-          continue;
-        }
-
-        // Clean up based on model type
-        if (model.includes('DialoGPT')) {
-          // Remove conversation markers
-          generatedText = generatedText
-            .replace(/Human:|Bot:|Assistant:|User:/g, '')
-            .replace(/^[:\-\s]+/, '')
-            .trim();
-        }
-
-        // Clean common prompt remnants
+    // Try google/flan-t5-base first
+    try {
+      console.log('Trying model: google/flan-t5-base');
+      
+      // flan-t5-base works better with a simpler, direct prompt
+      const flanPrompt = `Write a ${tone || 'professional'} product description for "${productName}". Category: ${productType || 'General'}. Features: ${features || 'High quality'}. Target: ${targetAudience || 'Everyone'}.`;
+      
+      let generatedText = await queryFlanT5Base(flanPrompt, 200);
+      generatedText = generatedText.trim();
+      
+      if (generatedText && generatedText.length >= 30) {
+        // Clean up the generated text
         generatedText = generatedText
-          .replace(/^(Description:|Product:|Features:)/i, '')
+          .replace(/^(Product Description:|Description:)/i, '')
           .replace(/^\s*[:\-]+\s*/, '')
           .trim();
 
@@ -308,8 +283,7 @@ export async function POST(req: NextRequest) {
         // Check if we got a decent result
         if (generatedText.length >= 30 && 
             !generatedText.toLowerCase().includes('i cannot') && 
-            !generatedText.toLowerCase().includes('i\'m not able') &&
-            generatedText.toLowerCase().includes(productName.toLowerCase().split(' ')[0])) {
+            !generatedText.toLowerCase().includes('i\'m not able')) {
           
           // Enhance the generated text with context
           const enhancedDescription = createEnhancedDescription(
@@ -322,15 +296,52 @@ export async function POST(req: NextRequest) {
           );
           
           finalDescription = enhancedDescription;
-          modelUsed = model;
-          break;
+          modelUsed = 'google/flan-t5-base';
         }
+      }
+    } catch (error) {
+      console.error('google/flan-t5-base failed:', error instanceof Error ? error.message : 'Unknown error');
+    }
 
-        console.log(`Model ${model} didn't produce suitable content, trying next...`);
+    // If flan-t5-base didn't work, try falcon-7b-instruct
+    if (!finalDescription) {
+      try {
+        console.log('Trying model: tiiuae/falcon-7b-instruct');
+        
+        let generatedText = await queryFalcon7B(instructionPrompt, 200);
+        generatedText = generatedText.trim();
+        
+        if (generatedText && generatedText.length >= 30) {
+          // Clean up the generated text
+          generatedText = generatedText
+            .replace(/^(Product Description:|Description:)/i, '')
+            .replace(/^\s*[:\-]+\s*/, '')
+            .trim();
 
-      } catch (modelError) {
-        console.error(`Model ${model} failed:`, modelError);
-        continue;
+          // Apply text quality improvements
+          generatedText = improveTextQuality(generatedText);
+
+          // Check if we got a decent result
+          if (generatedText.length >= 30 && 
+              !generatedText.toLowerCase().includes('i cannot') && 
+              !generatedText.toLowerCase().includes('i\'m not able')) {
+            
+            // Enhance the generated text with context
+            const enhancedDescription = createEnhancedDescription(
+              generatedText, 
+              productName, 
+              productType, 
+              targetAudience, 
+              features, 
+              tone
+            );
+            
+            finalDescription = enhancedDescription;
+            modelUsed = 'tiiuae/falcon-7b-instruct';
+          }
+        }
+      } catch (error) {
+        console.error('tiiuae/falcon-7b-instruct failed:', error instanceof Error ? error.message : 'Unknown error');
       }
     }
 
@@ -358,7 +369,7 @@ export async function POST(req: NextRequest) {
         targetAudience,
         features,
         tone,
-        generatedAt: savedDescription.createdAt instanceof Date ? savedDescription.createdAt.toISOString() : savedDescription.createdAt,
+        createdAt: savedDescription.createdAt instanceof Date ? savedDescription.createdAt.toISOString() : savedDescription.createdAt,
       });
     }
 
@@ -387,7 +398,7 @@ export async function POST(req: NextRequest) {
       targetAudience,
       features,
       tone,
-      generatedAt: savedDescription.createdAt instanceof Date ? savedDescription.createdAt.toISOString() : savedDescription.createdAt,
+      createdAt: savedDescription.createdAt instanceof Date ? savedDescription.createdAt.toISOString() : savedDescription.createdAt,
     });
 
   } catch (error) {

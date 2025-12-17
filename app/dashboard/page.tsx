@@ -35,6 +35,7 @@ export default function Dashboard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const toneOptions = [
     "Professional and engaging",
@@ -112,6 +113,33 @@ export default function Dashboard() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this description?")) {
+      return;
+    }
+
+    setDeletingId(id);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/descriptions/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        // Remove the description from the local state
+        setDescriptions(descriptions.filter((desc) => desc.id !== id));
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to delete description");
+      }
+    } catch {
+      setError("Failed to delete description");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   if (!isLoaded) {
@@ -464,6 +492,30 @@ export default function Dashboard() {
                           }
                         })()}
                       </span>
+                      <button
+                        onClick={() => handleDelete(desc.id)}
+                        disabled={deletingId === desc.id}
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 !min-h-0"
+                        title="Delete description"
+                      >
+                        {deletingId === desc.id ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-700 border-t-transparent"></div>
+                        ) : (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        )}
+                      </button>
                     </div>
                   </div>
 
