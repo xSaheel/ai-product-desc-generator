@@ -1,10 +1,12 @@
 // Hugging Face API client using fetch (no deprecated HfInference)
 
-if (!process.env.HUGGINGFACE_API_KEY) {
-  throw new Error('HUGGINGFACE_API_KEY must be set in environment variables');
+function getApiKey(): string {
+  const apiKey = process.env.HUGGINGFACE_API_KEY;
+  if (!apiKey) {
+    throw new Error('HUGGINGFACE_API_KEY must be set in environment variables');
+  }
+  return apiKey;
 }
-
-const apiKey = process.env.HUGGINGFACE_API_KEY;
 
 // Function to query Hugging Face models using fetch
 export async function queryHuggingFaceModel(
@@ -20,7 +22,7 @@ export async function queryHuggingFaceModel(
 ) {
   // Use Router API hf-inference endpoint
   const url = `https://router.huggingface.co/hf-inference/models/${model}`;
-
+  const apiKey = getApiKey();
   
   const response = await fetch(url, {
     headers: {
