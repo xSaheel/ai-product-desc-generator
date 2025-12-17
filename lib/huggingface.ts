@@ -1,10 +1,10 @@
 // Hugging Face API client using fetch (no deprecated HfInference)
 
-if (!process.env.HUGGINGFACE_API_KEY && !process.env.HF_TOKEN) {
-  throw new Error('HUGGINGFACE_API_KEY or HF_TOKEN must be set in environment variables');
+if (!process.env.HUGGINGFACE_API_KEY) {
+  throw new Error('HUGGINGFACE_API_KEY must be set in environment variables');
 }
 
-const apiKey = process.env.HUGGINGFACE_API_KEY || process.env.HF_TOKEN;
+const apiKey = process.env.HUGGINGFACE_API_KEY;
 
 // Function to query Hugging Face models using fetch
 export async function queryHuggingFaceModel(
